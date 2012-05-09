@@ -17,4 +17,17 @@
   **/
 #define SFA_NOFF 1
 
+#if SFA_FT==1
+	#include "audio/wave/format.h"
+#endif
+
+/** Verbal explanation of what SFA_FT values are. **/
+static char *SFA_FT_NAME[SFA_FT] = {
+					"wave"
+				};
+
+static char *GetSFAFTName(const int FT_TYPE){
+	return SFA_FT_NAME[FT_TYPE-1];
+}
+
 #endif
