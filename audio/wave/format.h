@@ -15,6 +15,8 @@ struct __WAVEFMT {
 	unsigned short FBitsSample;
 	char DATA[4];
 	unsigned long DChunkSize;
+
+	// DBUFF = (char*)malloc(sizeof(char) + DChunkSize + 1);
 	char *DBUFF;
 } audiofmt;
 
