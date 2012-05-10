@@ -7,7 +7,7 @@ if [ -f "sfa" ]; then
 fi
 
 echo -n "Compiling Security For Audio..."
-gcc main.c -o sfa
+gcc -m32 main.c -o sfa
 echo "done."
 
 #read -p "Execute Security For Audio now? (Y/n) " CHOICE
@@ -18,10 +18,16 @@ echo "done."
 #	fi
 #fi
 
-read -p "Compile wave_check? (Y/n) " CHOICE
+if [ $? -eq 1 ]; then
+	read -p "Compile wave_check? (Y/n) " CHOICE
 
-if [ -z "$CHOICE" ] || [ "$CHOICE" == "y" ] || [ "$CHOICE" == "Y" ]; then
-	gcc wave_check.c -o wave_check
+	if [ -z "$CHOICE" ] || [ "$CHOICE" == "y" ] || [ "$CHOICE" == "Y" ]; then
+		echo -n "Compiling wave_check..."
+		gcc -m32 wave_check.c -o wave_check
+		echo "done."
+	fi
+else
+	echo "Please fix compilation errors."
 fi
 
 echo ""

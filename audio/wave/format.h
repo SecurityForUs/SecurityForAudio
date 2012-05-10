@@ -56,6 +56,7 @@ static void ParseAudioFile(audiofmt *fmt){
 	fread(fmt->FMT, 1, 4, fp);
 
 	fread(&fmt->FChunkSize, sizeof(fmt->FChunkSize), 1, fp);
+
 	fmt->FExtraBytes = fmt->FChunkSize - 16;
 
 	fread(&fmt->FFormat, sizeof(fmt->FFormat), 1, fp);
@@ -89,6 +90,8 @@ static void ParseAudioFile(audiofmt *fmt){
 	 * the new location.  Then we keep checking for the DATA header/chunk.
 	 **/
 	while(strcmp(fmt->DATA, "data") != 0){
+		memset(fmt->DATA, '\0', sizeof(fmt->DATA));
+
 		fread(&hdr_len, sizeof(hdr_len), 1, fp);
 
 		fseek(fp, hdr_len, SEEK_CUR);
@@ -100,7 +103,7 @@ static void ParseAudioFile(audiofmt *fmt){
 	fread(&fmt->DChunkSize, sizeof(fmt->DChunkSize), 1, fp);
 
 	// Allocate enough memory to handle the buffer
-	fmt->DBUFF = (char*)malloc(sizeof(char) * fmt->DChunkSize);
+	fmt->DBUFF = (char*)malloc(sizeof(char) * (fmt->DChunkSize * 2));
 	memset(fmt->DBUFF, '\0', sizeof(fmt->DBUFF));
 
 	// Read it
@@ -111,8 +114,14 @@ static void ParseAudioFile(audiofmt *fmt){
 		c = fgetc(fp);
 
 		// If we don't want fake data, don't include it
-		if((SFA_NONULL && (c != 0)) && (SFA_NOFF && (c != 255)))
-			sprintf(fmt->DBUFF, "%s%c", fmt->DBUFF, c);
+		if((!SFA_NONULL || (SFA_NONULL && (c != 0))) && (!SFA_NOFF || (SFA_NOFF && (c != 255)))){
+			if(i % 2)
+				sprintf(fmt->DBUFF, "%s%02x", fmt->DBUFF, c);
+			else if(i % 3)
+				sprintf(fmt->DBUFF, "%s%02X", fmt->DBUFF, c);
+			else
+				sprintf(fmt->DBUFF, "%s%d", fmt->DBUFF, c);
+		}
 	}
 
 	fclose(fp);
