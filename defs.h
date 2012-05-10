@@ -4,6 +4,7 @@
 /** What type of audio are we going to be working with?
   * Options:
   * 1 - WAVE file (use wave_check to ensure wave file is compatible)
+  * 2 - MP3
   **/
 #define SFA_FT 1
 
@@ -19,6 +20,8 @@
 
 #if SFA_FT==1
 	#include "audio/wave/format.h"
+#elif SFA_FT==2
+	#include "audio/mp3/format.h"
 #endif
 
 /** Verbal explanation of what SFA_FT values are. **/
