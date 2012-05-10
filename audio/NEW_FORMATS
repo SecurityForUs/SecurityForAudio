@@ -1,0 +1,7 @@
+New audio formats can be used easily.  There's only a few restrictions:
+
+- __[AUDIO]FMT structure must be defined as audiofmt
+- All functions must remain the same name (i.e.: AudioCheck(), ParseAudioFile() & FreeAudioFile() must exist)
+- Only one audio type can be enabled at a time
+
+To specify the audio format to use see defs.h
