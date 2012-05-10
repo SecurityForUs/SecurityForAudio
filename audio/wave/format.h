@@ -104,7 +104,16 @@ static void ParseAudioFile(audiofmt *fmt){
 	memset(fmt->DBUFF, '\0', sizeof(fmt->DBUFF));
 
 	// Read it
-	fread(fmt->DBUFF, 1, fmt->DChunkSize, fp);
+	int i = 0;
+	int c = 0;
+
+	for(i = 0; i <= fmt->DChunkSize; i++){
+		c = fgetc(fp);
+
+		// If we don't want fake data, don't include it
+		if((SFA_NONULL && (c != 0)) && (SFA_NOFF && (c != 255)))
+			sprintf(fmt->DBUFF, "%s%c", fmt->DBUFF, c);
+	}
 
 	fclose(fp);
 }
