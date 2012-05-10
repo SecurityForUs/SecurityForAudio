@@ -6,29 +6,21 @@ if [ -f "sfa" ]; then
 	echo "done."
 fi
 
+IS_64=$(uname -m)
+
+if [ "$IS_64" == "x86_64" ]; then
+	GCC_M="-m32"
+else
+	GCC_M=""
+fi
+
 echo -n "Compiling Security For Audio..."
-gcc -m32 main.c -o sfa
+gcc $GCC_M main.c -o sfa
 echo "done."
 
-#read -p "Execute Security For Audio now? (Y/n) " CHOICE
-
-#if [ -f "sfa" ]; then
-#	if [ -z "$CHOICE" ] || [ "$CHOICE" == "y" ] || [ "$CHOICE" == "Y" ]; then
-#		./sfa
-#	fi
-#fi
-
-if [ $? -eq 1 ]; then
-	read -p "Compile wave_check? (Y/n) " CHOICE
-
-	if [ -z "$CHOICE" ] || [ "$CHOICE" == "y" ] || [ "$CHOICE" == "Y" ]; then
-		echo -n "Compiling wave_check..."
-		gcc -m32 wave_check.c -o wave_check
-		echo "done."
-	fi
-else
-	echo "Please fix compilation errors."
-fi
+echo -n "Compiling wave_check..."
+gcc $GCC_M wave_check.c -o wave_check
+echo "done."
 
 echo ""
 
