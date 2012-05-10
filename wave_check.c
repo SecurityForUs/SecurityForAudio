@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]){
 	audiofmt fmt;
-	sprintf(fmt.fn, "samples/rfd.wav");
+	sprintf(fmt.fn, "samples/rd.wav");
 	ParseAudioFile(&fmt);
 
 	int ret = AudioCheck(&fmt);

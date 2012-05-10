@@ -24,10 +24,13 @@ typedef struct __WAVEFMT {
 	char *DBUFF;
 } audiofmt;
 
+/**
+ * ParseAudioFile
+ * fmt - Structure where audio data will be stored.
+ *
+ * Parses fmt->fn and stores relevant information where needed.
+ **/
 static void ParseAudioFile(audiofmt *fmt){
-	fmt->RIFF = (char*)malloc(sizeof(char) * 5);
-	memset(fmt->RIFF, '\0', sizeof(fmt->RIFF));
-
 	FILE *fp = fopen(fmt->fn, "rb");
 
 	if(!fp){
@@ -35,12 +38,8 @@ static void ParseAudioFile(audiofmt *fmt){
 		return;
 	}
 
-	fseek(fp, 0, SEEK_END);
-	int size = ftell(fp);
-	rewind(fp);
-
-	fmt->DBUFF = (char*)malloc(sizeof(char) * size);
-	memset(&fmt->DBUFF, '\0', sizeof(fmt->DBUFF));
+	fmt->RIFF = (char*)malloc(sizeof(char) * 5);
+	memset(fmt->RIFF, '\0', sizeof(fmt->RIFF));
 
 	fread(fmt->RIFF, 1, 4, fp);
 
@@ -72,7 +71,7 @@ static void ParseAudioFile(audiofmt *fmt){
 	fread(&fmt->FBitsSample, sizeof(fmt->FBitsSample), 1, fp);
 
 	if(fmt->FExtraBytes != 0){
-		printf("Found an additional %ld bytes in \"fmt \" that we will disregard.\n", fmt->FExtraBytes);
+//		printf("Found an additional %ld bytes in \"fmt \" that we will disregard.\n", fmt->FExtraBytes);
 		fseek(fp, fmt->FExtraBytes, SEEK_CUR);
 	}
 
@@ -133,26 +132,37 @@ void FreeAudioFile(audiofmt *fmt){
 int AudioCheck(audiofmt *fmt){
 	printf("Validating WAVE file: %s\n", fmt->fn);
 
+	printf("-------------------------------------------------------------\n");
+	printf("| - Filename: %s\n", fmt->fn);
+
+	// Checks for valid headers.  Without these we know the WAVE data is incorrect.
 	if(strcmp(fmt->RIFF, "RIFF") != 0)
 		return -10;
+	else
+		printf("| - RIFF Header: Found\n");
 
 	if(strcmp(fmt->WAVE, "WAVE") != 0)
 		return -20;
+	else
+		printf("| - WAVE Header: Found\n");
 
 	if(strcmp(fmt->FMT, "fmt ") != 0){
 		printf("FMT header was parsed wrong: %s\n", fmt->FMT);
 		return -30;
-	}
+	} else
+		printf("| - FMT Header: Found\n");
 
 	if(strcmp(fmt->DATA, "data") != 0)
 		return -40;
+	else
+		printf("| - DATA Header: Found\n");
 
 	if(fmt->RChunkSize > 0)
-		printf("WAVE file data size: %ld bytes\n", fmt->RChunkSize);
+		printf("| - File size: %ld bytes\n", fmt->RChunkSize);
 	else
 		return 101;
 
-	printf("WAVE Compression Type: ");
+	printf("| - Compression Type: ");
 
 	if(fmt->FFormat & 0x0001)
 		printf("PCM/Uncompressed");
@@ -182,56 +192,58 @@ int AudioCheck(audiofmt *fmt){
 	printf("\n");
 
 	if(fmt->FChunkSize > 0)
-		printf("fmt Chunk Size: %ld\n", fmt->FChunkSize);
+		printf("| - FMT Chunk Size: %ld\n", fmt->FChunkSize);
 	else{
 		printf("Invalid \"fmt \" chunk size.\n");
 		return 302;
 	}
 
 	if(fmt->FExtraBytes > 0)
-		printf("fmt Extra Format Bytes: %ld\n", fmt->FExtraBytes);
+		printf("| - FMT Extra Bytes: %ld\n", fmt->FExtraBytes);
 
 	if(fmt->FChanNum > 0 && fmt->FChanNum <= 65535)
-		printf("Number of Channels: %d\n", fmt->FChanNum);
+		printf("| - Channels: %d\n", fmt->FChanNum);
 	else{
-		printf("Invalid channel number.\n");
+		printf("| - Invalid channel number.\n");
 		return 303;
 	}
 
 	if(fmt->FSamplesSec > 0 && (fmt->FSamplesSec <= 0xFFFFFFFF))
-		printf("Samples Rate: %ld\n", fmt->FSamplesSec);
+		printf("| - Samples Rate: %ld\n", fmt->FSamplesSec);
 	else{
-		printf("Invalid sample rate.\n");
+		printf("| - Invalid sample rate.\n");
 		return 304;
 	}
 
 	if(fmt->FBytesSec > 0 && (fmt->FBytesSec <= 0xFFFFFFFF))
-		printf("Average Bytes/Second: %ld\n", fmt->FBytesSec);
+		printf("| - Average Bytes/Second: %ld\n", fmt->FBytesSec);
 	else{
-		printf("Invalid average bytes/second.\n");
+		printf("| - Invalid average bytes/second.\n");
 		return 305;
 	}
 
 	if(fmt->FBlockAlign > 0 && (fmt->FBlockAlign <= 65535))
-		printf("Block Align: %d\n", fmt->FBlockAlign);
+		printf("| - Block Align: %d\n", fmt->FBlockAlign);
 	else{
-		printf("Invalid block align data.\n");
+		printf("| - Invalid block align data.\n");
 		return 306;
 	}
 
 	if(fmt->FBitsSample > 1 && (fmt->FBitsSample <= 65535))
-		printf("Significant Bits/Sample: %d\n", fmt->FBitsSample);
+		printf("| - Significant Bits/Sample: %d\n", fmt->FBitsSample);
 	else{
-		printf("Invalid signifcant bits/sample.\n");
+		printf("| - Invalid signifcant bits/sample.\n");
 		return 307;
 	}
 
 	if(fmt->DChunkSize > 0)
-		printf("Data size: %ld bytes\n", fmt->DChunkSize);
+		printf("| - Data size: %ld bytes\n", fmt->DChunkSize);
 	else{
-		printf("No data size.\n");
+		printf("| - No data size.\n");
 		return 401;
 	}
+
+	printf("-------------------------------------------------------------\n");
 
 	return 1;
 }
