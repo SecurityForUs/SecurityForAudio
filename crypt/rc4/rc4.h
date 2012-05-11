@@ -36,7 +36,9 @@ void prga(crypt_struct *cs, int len)
 {
    int i=0,j=0,x,t;
    unsigned char key;
-   len *= 2;
+
+	if(len > STREAM_LENGTH)
+		len = STREAM_LENGTH;
 
    for (x=0; x < len; ++x)  {
       i = (i + 1) % STREAM_LENGTH;
